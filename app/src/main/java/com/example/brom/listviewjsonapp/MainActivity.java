@@ -143,12 +143,20 @@ public class MainActivity extends AppCompatActivity {
 
             try {
 
-                JSONObject json1 = new JSONObject(o);
-
+                JSONArray json1 = new JSONArray(o);
+                // For loop
+                // Logga alla obj
+                // Ta ut name,location,heigth
+                // skapa berg
+                
+                Log.d("PetersDebug",json1.toString());
+                Log.d("PetersDebug",json1.getJSONObject(0).getString("ID"));
+                /*
                 int age = json1.getInt("id");
                 TextView test = (TextView) findViewById(R.id.testworld);
                 test.setText(age);
                 Log.d("PetersDebug","Debug start");
+                */
 
             } catch (JSONException e) {
                 Log.e("brom","E:"+e.getMessage());

@@ -4,6 +4,12 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +17,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 // Create a new class, Mountain, that can hold your JSON data
@@ -25,11 +33,21 @@ import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
+    private String[] mountainNames = {"Matterhorn","Mont Blanc","Denali"};
+    private ArrayList<String> ListData= new ArrayList<>(Arrays.asList(mountainNames));
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,R.layout.list_item_textview,R.id.list_item_textview,ListData);
+        ListView my_listview=(ListView) findViewById(R.id.my_listview);
+        my_listview.setAdapter(adapter);
+
+        new FetchData().execute();
+
     }
 
     private class FetchData extends AsyncTask<Void,Void,String>{
@@ -45,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 // Construct the URL for the Internet service
-                URL url = new URL("_ENTER_THE_URL_TO_THE_PHP_SERVICE_SERVING_JSON_HERE_");
+                URL url = new URL("http://wwwlab.iit.his.se/brom/kurser/mobilprog/jsonservice.php");
 
                 // Create the request to the PHP-service, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -99,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
             // This code executes after we have received our data. The String object o holds
             // the un-parsed JSON string or is null if we had an IOException during the fetch.
 
+            setContentView(R.layout.mountains);
+            TextView test = (TextView) findViewById(R.id.world);
+            test.setText(o);
             // Implement a parsing code that loops through the entire JSON and creates objects
             // of our newly created Mountain class.
         }

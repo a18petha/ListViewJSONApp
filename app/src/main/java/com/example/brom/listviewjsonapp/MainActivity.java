@@ -9,12 +9,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-// Create a new class, Mountain, that can hold your JSON data
+// Create a new class, Mountaindetails, that can hold your JSON data
 
 // Create a ListView as in "Assignment 1 - Toast and ListView"
 
@@ -38,30 +36,36 @@ import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity {
-    private String[] mountainNames = {"Matterhorn","Mont Blanc","Denali"};
-    private String[] mountainLocations = {"Alps","Alps","Alaska"};
-    private int[] mountainHeights ={4478,4808,6190};
+    private String[] mountainNames = {"Matterhorn", "Mont Blanc", "Denali"};
+    private String[] mountainLocations = {"Alps", "Alps", "Alaska"};
+    private int[] mountainHeights = {4478, 4808, 6190};
     // Create ArrayLists from the raw data above and use these lists when populating your ListView.
-    private ArrayList<String> ListData= new ArrayList<>(Arrays.asList(mountainNames));
-
+    private ArrayList<String> ListData = new ArrayList<>(/*Arrays.asList(mountainNames)*/);
+    private ArrayList<Mountain> mountains = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,R.layout.list_item_textview,R.id.list_item_textview,ListData);
-        ListView my_listview=(ListView) findViewById(R.id.my_listview);
+        adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item_textview, R.id.list_item_textview, ListData);
+
+        ListView my_listview = (ListView) findViewById(R.id.my_listview);
         my_listview.setAdapter(adapter);
+
         my_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> AdapterView, View view, int i, long l) {
-                Toast.makeText(getApplicationContext(), "Mountain "+mountainNames[i]+ ", Location "+mountainLocations[i]+ ", Mountain heights "+mountainHeights[i]+ " Meters", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Mountaindetails " + mountains.get(i).getName()
+                        + ", Location " + mountains.get(i).getLocation()
+                        + ", Mountaindetails heights " + mountains.get(i).getHeight()
+                        + " Meters", Toast.LENGTH_LONG).show();
 
-                Intent intent = new Intent(MainActivity.this, Mountain.class);
-                intent.putExtra("mountainNames", mountainNames[i]);
-                intent.putExtra("mountainLocations", mountainLocations[i]);
-                intent.putExtra("Heights", mountainHeights[i]);
+                Intent intent = new Intent(MainActivity.this, Mountaindetails.class);
+                intent.putExtra("mountainNames", mountains.get(i).getName());
+                intent.putExtra("mountainLocations", mountains.get(i).getLocation());
+                intent.putExtra("Heights", mountains.get(i).getHeight());
                 startActivity(intent);
             }
         });
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class FetchData extends AsyncTask<Void,Void,String>{
+    private class FetchData extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... params) {
             // These two variables need to be declared outside the try/catch
@@ -118,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 // If the code didn't successfully get the weather data, there's no point in
                 // attempting to parse it.
                 return null;
-            } finally{
+            } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
@@ -131,14 +135,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
         @Override
         protected void onPostExecute(String o) {
             super.onPostExecute(o);
             // This code executes after we have received our data. The String object o holds
             // the un-parsed JSON string or is null if we had an IOException during the fetch.
-            setContentView(R.layout.parsing);
-            Log.d("PetersDebug","Debug start");
-            Log.d("PetersDebug",o);
+            Log.d("PetersDebug", "Debug start");
+            Log.d("PetersDebug", o);
 
 
             try {
@@ -148,9 +152,18 @@ public class MainActivity extends AppCompatActivity {
                 // Logga alla obj
                 // Ta ut name,location,heigth
                 // skapa berg
-                
-                Log.d("PetersDebug",json1.toString());
-                Log.d("PetersDebug",json1.getJSONObject(0).getString("ID"));
+
+                for (int i = 0; i < json1.length(); i++) {
+                    adapter.add(json1.getJSONObject(i).getString("name"));
+                    mountains.add(new Mountain(
+                            json1.getJSONObject(i).getString("name"),
+                            json1.getJSONObject(i).getString("location"),
+                            json1.getJSONObject(i).getInt("size")
+                    ));
+                }
+
+                Log.d("PetersDebug", json1.toString());
+                Log.d("PetersDebug", json1.getJSONObject(0).getString("ID"));
                 /*
                 int age = json1.getInt("id");
                 TextView test = (TextView) findViewById(R.id.testworld);
@@ -159,11 +172,12 @@ public class MainActivity extends AppCompatActivity {
                 */
 
             } catch (JSONException e) {
-                Log.e("brom","E:"+e.getMessage());
+                Log.e("brom", "E:" + e.getMessage());
             }
 
+
             // Implement a parsing code that loops through the entire JSON and creates objects
-            // of our newly created Mountain class.
+            // of our newly created Mountaindetails class.
 
             //setContentView(R.layout.parsing);
             //            TextView test = (TextView) findViewById(R.id.testworld);
